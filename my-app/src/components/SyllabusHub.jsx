@@ -640,7 +640,7 @@ const SyllabusHub = () => {
                                         </div>
                                     </div>
                                 )}
-                                <button 
+                                <button
                                     onClick={() => setShowStudyPlanModal(true)}
                                     className="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center gap-2"
                                 >
@@ -681,7 +681,7 @@ const SyllabusHub = () => {
                                         </div>
                                     </div>
                                 )}
-                                <button 
+                                <button
                                     onClick={() => setShowFlashcardsModal(true)}
                                     className="w-full px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors flex items-center justify-center gap-2"
                                 >
@@ -720,7 +720,7 @@ const SyllabusHub = () => {
                                         </div>
                                     </div>
                                 )}
-                                <button 
+                                <button
                                     onClick={() => setShowQuizzesModal(true)}
                                     className="w-full px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors flex items-center justify-center gap-2"
                                 >
@@ -773,7 +773,7 @@ const SyllabusHub = () => {
                                 <X className="w-5 h-5" />
                             </button>
                         </div>
-                        
+
                         <div className="p-6 overflow-y-auto max-h-[calc(90vh-120px)]">
                             {generatedContent.studyPlan.isDemo && (
                                 <div className="mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
@@ -809,17 +809,16 @@ const SyllabusHub = () => {
                                                 <div className="text-sm text-gray-600">{day.subject}</div>
                                             </div>
                                             <div className="flex items-center gap-2">
-                                                <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                                                    day.difficulty === 'Easy' ? 'bg-green-100 text-green-700' :
-                                                    day.difficulty === 'Hard' ? 'bg-red-100 text-red-700' :
-                                                    'bg-yellow-100 text-yellow-700'
-                                                }`}>
+                                                <span className={`px-2 py-1 rounded-full text-xs font-medium ${day.difficulty === 'Easy' ? 'bg-green-100 text-green-700' :
+                                                        day.difficulty === 'Hard' ? 'bg-red-100 text-red-700' :
+                                                            'bg-yellow-100 text-yellow-700'
+                                                    }`}>
                                                     {day.difficulty}
                                                 </span>
                                                 <span className="text-sm text-gray-500">{day.duration}h</span>
                                             </div>
                                         </div>
-                                        
+
                                         <div className="mb-3">
                                             <div className="font-medium text-gray-900 mb-1">📚 {day.topic}</div>
                                             {day.notes && <div className="text-sm text-gray-600">{day.notes}</div>}
@@ -867,7 +866,7 @@ const SyllabusHub = () => {
                                 <X className="w-5 h-5" />
                             </button>
                         </div>
-                        
+
                         <div className="p-6 overflow-y-auto max-h-[calc(90vh-120px)]">
                             {generatedContent.flashcards.isDemo && (
                                 <div className="mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
@@ -883,15 +882,14 @@ const SyllabusHub = () => {
                                     <div key={card.id || index} className="border border-gray-200 rounded-lg p-4 hover:shadow-sm transition-shadow">
                                         <div className="flex items-center justify-between mb-3">
                                             <span className="text-sm font-medium text-purple-600">{card.subject}</span>
-                                            <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                                                card.difficulty === 'Easy' ? 'bg-green-100 text-green-700' :
-                                                card.difficulty === 'Hard' ? 'bg-red-100 text-red-700' :
-                                                'bg-yellow-100 text-yellow-700'
-                                            }`}>
+                                            <span className={`px-2 py-1 rounded-full text-xs font-medium ${card.difficulty === 'Easy' ? 'bg-green-100 text-green-700' :
+                                                    card.difficulty === 'Hard' ? 'bg-red-100 text-red-700' :
+                                                        'bg-yellow-100 text-yellow-700'
+                                                }`}>
                                                 {card.difficulty}
                                             </span>
                                         </div>
-                                        
+
                                         <div className="mb-3">
                                             <div className="font-semibold text-gray-900 mb-2">Q: {card.question}</div>
                                             <div className="text-gray-700">A: {card.answer}</div>
@@ -935,7 +933,7 @@ const SyllabusHub = () => {
                                 <X className="w-5 h-5" />
                             </button>
                         </div>
-                        
+
                         <div className="p-6 overflow-y-auto max-h-[calc(90vh-120px)]">
                             {generatedContent.quizzes.isDemo && (
                                 <div className="mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
@@ -954,11 +952,10 @@ const SyllabusHub = () => {
                                                 <h4 className="text-lg font-semibold text-gray-900">{quiz.title}</h4>
                                                 <p className="text-gray-600 mt-1">{quiz.description}</p>
                                             </div>
-                                            <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                                                quiz.difficulty === 'Easy' ? 'bg-green-100 text-green-700' :
-                                                quiz.difficulty === 'Hard' ? 'bg-red-100 text-red-700' :
-                                                'bg-yellow-100 text-yellow-700'
-                                            }`}>
+                                            <span className={`px-3 py-1 rounded-full text-sm font-medium ${quiz.difficulty === 'Easy' ? 'bg-green-100 text-green-700' :
+                                                    quiz.difficulty === 'Hard' ? 'bg-red-100 text-red-700' :
+                                                        'bg-yellow-100 text-yellow-700'
+                                                }`}>
                                                 {quiz.difficulty}
                                             </span>
                                         </div>
@@ -999,11 +996,10 @@ const SyllabusHub = () => {
                                                     {quiz.sample_questions[0].options && (
                                                         <div className="space-y-1">
                                                             {quiz.sample_questions[0].options.map((option, optIndex) => (
-                                                                <div key={optIndex} className={`text-sm p-2 rounded ${
-                                                                    option === quiz.sample_questions[0].correct_answer 
-                                                                        ? 'bg-green-100 text-green-700 font-medium' 
+                                                                <div key={optIndex} className={`text-sm p-2 rounded ${option === quiz.sample_questions[0].correct_answer
+                                                                        ? 'bg-green-100 text-green-700 font-medium'
                                                                         : 'text-gray-600'
-                                                                }`}>
+                                                                    }`}>
                                                                     {String.fromCharCode(97 + optIndex)}) {option}
                                                                 </div>
                                                             ))}
