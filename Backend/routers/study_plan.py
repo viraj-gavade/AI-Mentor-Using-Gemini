@@ -32,9 +32,42 @@ async def generate_study_plan_endpoint(request: StudyPlanRequest):
             # Mock study plan for testing/quota fallback
             plan_data = {}
             topics = [(subject, topic) for subject, topics in request.syllabus.items() for topic in topics]
-            for i, (subject, topic) in enumerate(topics[:request.exam_days]):
-                day = f"Day {i+1}"
-                plan_data[day] = [f"{subject} - {topic}", "Quiz: 5 MCQs"]
+            
+            # Distribute topics across all exam days
+            for day_num in range(1, request.exam_days + 1):
+                day = f"Day {day_num}"
+                day_tasks = []
+                
+                # Calculate which topics to include for this day
+                topics_per_day = max(1, len(topics) // request.exam_days)
+                start_idx = (day_num - 1) * topics_per_day
+                end_idx = min(start_idx + topics_per_day, len(topics))
+                
+                # Add topics for this day
+                for topic_idx in range(start_idx, end_idx):
+                    if topic_idx < len(topics):
+                        subject, topic = topics[topic_idx]
+                        day_tasks.append(f"📚 Study: {subject} - {topic}")
+                
+                # Add additional tasks based on day position
+                if day_num <= len(topics):
+                    day_tasks.append("📝 Practice exercises (30 mins)")
+                    day_tasks.append("❓ Take practice quiz (15 mins)")
+                
+                # Add review sessions for later days
+                if day_num > len(topics) // 2:
+                    day_tasks.append("🔄 Review previous topics (45 mins)")
+                
+                # Final review days
+                if day_num > request.exam_days - 3:
+                    day_tasks = [
+                        "📖 Comprehensive review of all subjects",
+                        "📝 Solve previous exam papers",
+                        "🎯 Focus on weak areas identified",
+                        "💡 Quick revision of key concepts"
+                    ]
+                
+                plan_data[day] = day_tasks if day_tasks else ["📚 General study and revision"]
         else:
             # Generate study plan using LLM utils
             import json
@@ -43,18 +76,62 @@ async def generate_study_plan_endpoint(request: StudyPlanRequest):
             
             # Parse JSON response from LLM (or handle as text)
             try:
-                plan_data = json.loads(llm_response)
+                # Try to extract JSON from the response if it's wrapped in other text
+                import re
+                json_match = re.search(r'\{.*\}', llm_response, re.DOTALL)
+                if json_match:
+                    json_str = json_match.group()
+                    plan_data = json.loads(json_str)
+                else:
+                    plan_data = json.loads(llm_response)
             except json.JSONDecodeError:
                 # If not JSON, create a simple structure from text response
+                print(f"Failed to parse LLM response as JSON: {llm_response[:200]}...")
                 lines = llm_response.split('\n')
                 plan_data = {}
                 current_day = None
+                current_tasks = []
+                
                 for line in lines:
-                    if 'Day' in line:
-                        current_day = line.strip()
-                        plan_data[current_day] = []
-                    elif current_day and line.strip():
-                        plan_data[current_day].append(line.strip())
+                    line = line.strip()
+                    if not line:
+                        continue
+                        
+                    # Check if line contains a day indicator
+                    if re.match(r'.*Day\s*\d+', line, re.IGNORECASE):
+                        # Save previous day if exists
+                        if current_day and current_tasks:
+                            plan_data[current_day] = current_tasks
+                        
+                        # Start new day
+                        current_day = re.sub(r'[*#\-\s]*', '', line).strip()
+                        current_tasks = []
+                    elif current_day and line:
+                        # Clean up the task line
+                        task = re.sub(r'^[*\-•]\s*', '', line).strip()
+                        if task:
+                            current_tasks.append(task)
+                
+                # Don't forget the last day
+                if current_day and current_tasks:
+                    plan_data[current_day] = current_tasks
+                
+                # If no days were parsed, create a fallback structure
+                if not plan_data:
+                    # Split response into days based on content length
+                    all_lines = [line.strip() for line in lines if line.strip()]
+                    tasks_per_day = max(3, len(all_lines) // request.exam_days)
+                    
+                    for day_num in range(1, request.exam_days + 1):
+                        day_key = f"Day {day_num}"
+                        start_idx = (day_num - 1) * tasks_per_day
+                        end_idx = min(start_idx + tasks_per_day, len(all_lines))
+                        day_tasks = all_lines[start_idx:end_idx]
+                        
+                        if not day_tasks:
+                            day_tasks = [f"📚 Study topics from {', '.join(list(request.syllabus.keys())[:3])}"]
+                        
+                        plan_data[day_key] = day_tasks
         
         # Generate unique plan ID
         plan_id = str(uuid.uuid4())

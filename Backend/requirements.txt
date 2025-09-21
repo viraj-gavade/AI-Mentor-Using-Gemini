@@ -12,6 +12,7 @@ PyJWT
 python-jose[cryptography]
 passlib[bcrypt]
 email-validator
+bson
 
 # Existing dependencies
 python-dotenv

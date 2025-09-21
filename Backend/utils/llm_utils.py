@@ -49,7 +49,7 @@ dotenv.load_dotenv()
 
 # Groq Configuration (Currently Active)
 groq_api_key = os.getenv("GROQ_API_KEY")
-print(f"Groq API Key: {groq_api_key}")
+# print(f"Groq API Key: {groq_api_key}")
 if not groq_api_key:
     raise RuntimeError("GROQ_API_KEY not found in environment. Please set it in your .env file.")
 
@@ -63,7 +63,7 @@ import google.generativeai as genai
 from langchain_google_genai import ChatGoogleGenerativeAI
 
 # Gemini Configuration
-gemini_api_key = os.getenv("GOOGLE_API_KEY")  
+gemini_api_key = os.getenv("GOOGLE_API_KEY") or "AIzaSyD_yx_UaIu8_e65WMoQnZGdG5171gULoVM"
 if not gemini_api_key:
     raise RuntimeError("GOOGLE_API_KEY not found in environment. Please set it in your .env file.")
 
@@ -71,7 +71,7 @@ if not gemini_api_key:
 genai.configure(api_key=gemini_api_key)
 
 # Initialize Gemini LLM
-llm  = ChatGoogleGenerativeAI(
+llm = ChatGoogleGenerativeAI(
     model="gemini-1.5-flash",  
     google_api_key=gemini_api_key,
     temperature=0.7,
@@ -345,6 +345,24 @@ Please respond ONLY with the JSON structure, no additional text.
         return f"Error: {str(e)}"
     """
 
+async def call_llm_async(prompt: str) -> str:
+    """Generic async LLM call function for AI features"""
+    try:
+        # Current implementation (Groq/LangChain)
+        response = llm.predict(prompt)
+        return response
+        
+        # Alternative Gemini implementation (Commented - Ready to Switch)
+        """
+        # Direct Gemini API call
+        gemini_model = genai.GenerativeModel('gemini-1.5-flash')
+        response = gemini_model.generate_content(prompt)
+        return response.text
+        """
+    except Exception as e:
+        print(f"LLM call error: {e}")
+        return f"I apologize, but I'm having trouble processing your request right now. Please try again later."
+
 def generate_quiz(topic: str) -> str:
     """Generate 5 MCQs or flashcards for a topic, optionally using vector database context"""
     try:
@@ -420,7 +438,32 @@ Respond ONLY with the JSON, no additional text."""
 
 def generate_study_plan(topics_json: str, days: int) -> str:
     """Generate daily study plan based on topics JSON and days"""
-    prompt = f"Generate a {days}-day study plan for the following syllabus:\n{topics_json}"
+    prompt = f"""Create a detailed {days}-day study plan for the following syllabus: {topics_json}
+
+Generate a JSON response with this exact structure:
+{{
+    "Day 1": [
+        "📚 Study: Subject - Topic (60 mins)",
+        "📝 Practice exercises (30 mins)",
+        "❓ Take practice quiz (15 mins)"
+    ],
+    "Day 2": [
+        "📚 Study: Subject - Topic (60 mins)",
+        "🔄 Review previous day's topics (30 mins)",
+        "📝 Practice problems (30 mins)"
+    ]
+}}
+
+Rules:
+- Distribute all topics evenly across {days} days
+- Include study time, practice, and review activities
+- Use emojis for visual appeal
+- Each day should have 3-5 specific tasks
+- Include time estimates in parentheses
+- For later days, add review sessions
+- For final days, focus on comprehensive review
+
+Return ONLY valid JSON, no additional text."""
     
     # Current implementation (Groq/LangChain)
     response = llm.predict(prompt)

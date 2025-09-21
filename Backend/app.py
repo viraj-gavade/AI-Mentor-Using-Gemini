@@ -21,7 +21,7 @@ from middleware.error_handling import (
 )
 
 # Import routers
-from routers import quiz, study_plan, syllabus, calendar
+from routers import quiz, study_plan, syllabus, calendar, auth, ai
 
 # Load environment variables
 load_dotenv()
@@ -78,6 +78,8 @@ async def health_check():
     )
 
 # Include routers
+app.include_router(auth.router)
+app.include_router(ai.router)
 app.include_router(quiz.router)
 app.include_router(study_plan.router)
 app.include_router(syllabus.router)
@@ -93,9 +95,11 @@ async def root():
             "docs": "/docs",
             "health": "/api/health",
             "endpoints": {
+                "ai": "/api/ai",
                 "quiz": "/api/quiz",
                 "study_plan": "/api/study-plan", 
-                "syllabus": "/api/syllabus"
+                "syllabus": "/api/syllabus",
+                "auth": "/api/auth"
             }
         }
     )

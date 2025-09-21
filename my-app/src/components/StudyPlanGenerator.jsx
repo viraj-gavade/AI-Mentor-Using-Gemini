@@ -287,18 +287,26 @@ function StudyPlanGenerator() {
                       </div>
                       <div className="p-4 bg-white dark:bg-gray-800">
                         {Array.isArray(tasks) && tasks.length > 0 ? (
-                          <ul className="space-y-2">
-                            {tasks.map((task, idx) => (
-                              typeof task === 'string' ? (
-                                <li key={idx} className="flex items-start gap-2">
+                          <ul className="space-y-3">
+                            {tasks.map((task, idx) => {
+                              const taskStr = typeof task === 'string' ? task : String(task);
+                              return (
+                                <li key={idx} className="flex items-start gap-3">
                                   <div className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0"></div>
-                                  <span className="text-gray-700 dark:text-gray-300">{task}</span>
+                                  <span className="text-gray-700 dark:text-gray-300 leading-relaxed">{taskStr}</span>
                                 </li>
-                              ) : null
-                            ))}
+                              );
+                            })}
                           </ul>
+                        ) : tasks && typeof tasks === 'object' ? (
+                          <div className="text-gray-500 dark:text-gray-400">
+                            <p className="mb-2">Tasks object detected:</p>
+                            <pre className="bg-gray-100 dark:bg-gray-700 p-2 rounded text-xs overflow-x-auto">
+                              {JSON.stringify(tasks, null, 2)}
+                            </pre>
+                          </div>
                         ) : (
-                          <p className="text-gray-500 dark:text-gray-400 italic">No tasks scheduled</p>
+                          <p className="text-gray-500 dark:text-gray-400 italic">No tasks scheduled for this day</p>
                         )}
                       </div>
                     </div>

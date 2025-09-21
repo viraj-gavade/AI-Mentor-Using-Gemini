@@ -1,22 +1,42 @@
 import { NavLink } from 'react-router-dom';
 import { useState } from 'react';
-import { Home, Brain, Target, Zap, FileText, BookOpen, Sparkles, Menu, X } from 'lucide-react';
+import {
+    Home, Brain, Target, Zap, FileText, BookOpen, Sparkles, Menu, X,
+    User, LogOut, Settings, LogIn, UserPlus, MessageCircle
+} from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext';
+import AuthModal from './AuthModal';
 
 const Navbar = () => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const [showAuthModal, setShowAuthModal] = useState(false);
+    const [authMode, setAuthMode] = useState('login');
+    const [showUserMenu, setShowUserMenu] = useState(false);
+    const { isAuthenticated, user, logout } = useAuth();
 
     const links = [
-        { path: '/', label: 'Home', icon: Home, gradient: 'from-blue-500 to-indigo-500' },
+        { path: '/dashboard', label: 'Dashboard', icon: Home, gradient: 'from-blue-500 to-indigo-500' },
+        { path: '/syllabus-hub', label: 'Syllabus Hub', icon: Sparkles, gradient: 'from-purple-500 to-pink-500' },
+        { path: '/ai-buddy', label: 'AI Study Buddy', icon: MessageCircle, gradient: 'from-indigo-500 to-purple-500' },
         { path: '/flashcards', label: 'Flashcards', icon: Brain, gradient: 'from-cyan-500 to-blue-500' },
         { path: '/study-plan', label: 'Study Plan', icon: Target, gradient: 'from-blue-500 to-indigo-500' },
-        { path: '/quiz', label: 'Quiz', icon: Zap, gradient: 'from-purple-500 to-pink-500' },
-        { path: '/syllabus-pdf', label: 'Syllabus PDF', icon: FileText, gradient: 'from-emerald-500 to-teal-500' },
+        { path: '/quiz', label: 'Quiz', icon: Zap, gradient: 'from-orange-500 to-red-500' },
     ];
 
     const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
 
+    const handleAuthClick = (mode) => {
+        setAuthMode(mode);
+        setShowAuthModal(true);
+    };
+
+    const handleLogout = async () => {
+        await logout();
+        setShowUserMenu(false);
+    };
+
     return (
-        <nav className="bg-white/90 dark:bg-gray-900/90 backdrop-blur-md border-b border-gray-200/50 dark:border-gray-700/50 sticky top-0 z-50 shadow-lg">
+        <nav className="bg-white/95 dark:bg-gray-900/95 backdrop-blur-lg border-b border-gray-200/50 dark:border-gray-700/50 sticky top-0 z-50 shadow-sm">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="flex justify-between items-center h-16">
                     {/* Logo */}
@@ -33,8 +53,11 @@ const Navbar = () => {
                             <span className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
                                 StudyMentor
                             </span>
-                            <div className="text-xs text-gray-500 dark:text-gray-400 -mt-1">
+                            <div className="text-xs text-gray-500 dark:text-gray-400 -mt-1 flex items-center gap-2">
                                 AI-Powered Learning
+                                <span className="px-2 py-0.5 bg-orange-100 text-orange-600 text-xs font-medium rounded-full">
+                                    DEMO
+                                </span>
                             </div>
                         </div>
                     </NavLink>
@@ -72,6 +95,79 @@ const Navbar = () => {
                         })}
                     </div>
 
+                    {/* Auth Section */}
+                    <div className="hidden lg:flex items-center space-x-3">
+                        {isAuthenticated ? (
+                            <div className="relative">
+                                <button
+                                    onClick={() => setShowUserMenu(!showUserMenu)}
+                                    className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                                >
+                                    <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full flex items-center justify-center">
+                                        <span className="text-white text-sm font-semibold">
+                                            {user?.full_name?.charAt(0)?.toUpperCase() || 'U'}
+                                        </span>
+                                    </div>
+                                    <div className="text-left">
+                                        <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                                            {user?.full_name?.split(' ')[0] || 'User'}
+                                        </div>
+                                        <div className="text-xs text-gray-500 dark:text-gray-400">
+                                            Welcome back!
+                                        </div>
+                                    </div>
+                                </button>
+
+                                {/* User Dropdown */}
+                                {showUserMenu && (
+                                    <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 py-1 z-50">
+                                        <NavLink
+                                            to="/dashboard"
+                                            onClick={() => setShowUserMenu(false)}
+                                            className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                                        >
+                                            <User className="w-4 h-4" />
+                                            Dashboard
+                                        </NavLink>
+                                        <NavLink
+                                            to="/settings"
+                                            onClick={() => setShowUserMenu(false)}
+                                            className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                                        >
+                                            <Settings className="w-4 h-4" />
+                                            Settings
+                                        </NavLink>
+                                        <hr className="my-1 border-gray-200 dark:border-gray-700" />
+                                        <button
+                                            onClick={handleLogout}
+                                            className="flex items-center gap-3 px-4 py-2 text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 w-full text-left"
+                                        >
+                                            <LogOut className="w-4 h-4" />
+                                            Sign Out
+                                        </button>
+                                    </div>
+                                )}
+                            </div>
+                        ) : (
+                            <div className="flex items-center space-x-2">
+                                <button
+                                    onClick={() => handleAuthClick('login')}
+                                    className="flex items-center gap-2 px-4 py-2 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                                >
+                                    <LogIn className="w-4 h-4" />
+                                    Sign In
+                                </button>
+                                <button
+                                    onClick={() => handleAuthClick('register')}
+                                    className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg hover:from-blue-700 hover:to-indigo-700 transition-all duration-200 shadow-lg hover:shadow-xl"
+                                >
+                                    <UserPlus className="w-4 h-4" />
+                                    Sign Up
+                                </button>
+                            </div>
+                        )}
+                    </div>
+
                     {/* Theme Toggle & Mobile Menu Button */}
                     <div className="flex items-center gap-3">
                         {/* Theme Toggle Button */}
@@ -92,9 +188,9 @@ const Navbar = () => {
                 </div>
 
                 {/* Mobile Navigation */}
-                <div className={`lg:hidden transition-all duration-300 ease-in-out ${isMenuOpen ? 'max-h-96 opacity-100 pb-4' : 'max-h-0 opacity-0 overflow-hidden'
+                <div className={`lg:hidden transition-all duration-300 ease-in-out bg-white/95 dark:bg-gray-900/95 backdrop-blur-md ${isMenuOpen ? 'max-h-96 opacity-100 pb-4' : 'max-h-0 opacity-0 overflow-hidden'
                     }`}>
-                    <div className="grid grid-cols-1 gap-2 pt-4 border-t border-gray-200 dark:border-gray-700">
+                    <div className="grid grid-cols-1 gap-2 pt-4 border-t border-gray-200/50 dark:border-gray-700/50">
                         {links.map((link) => {
                             const IconComponent = link.icon;
                             return (
@@ -145,10 +241,17 @@ const Navbar = () => {
             {/* Mobile Menu Overlay */}
             {isMenuOpen && (
                 <div
-                    className="lg:hidden fixed inset-0 bg-black/20 backdrop-blur-sm z-40"
+                    className="lg:hidden fixed inset-0 bg-black/10 z-40"
                     onClick={() => setIsMenuOpen(false)}
                 />
             )}
+
+            {/* Auth Modal */}
+            <AuthModal
+                isOpen={showAuthModal}
+                onClose={() => setShowAuthModal(false)}
+                initialMode={authMode}
+            />
         </nav>
     );
 };
